@@ -16,21 +16,22 @@ public class StartCSE360 extends Application {
 		 launch(args);
 	}
 	
-//	@Override
-//    public void start(Stage primaryStage) {
-//        try {
-//            databaseHelper.connectToDatabase(); // Connect to the database
-//            if (databaseHelper.isDatabaseEmpty()) {
-//            	
-//            	new FirstPage(databaseHelper).show(primaryStage);
-//            } else {
-//            	new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
-//                
-//            }
-//        } catch (SQLException e) {
-//        	System.out.println(e.getMessage());
-//        }
-//    }
+	@Override
+    public void start(Stage primaryStage) {
+        try {
+            databaseHelper.connectToDatabase(); // Connect to the database
+            if (databaseHelper.isDatabaseEmpty()) {
+            	
+            	new FirstPage(databaseHelper).show(primaryStage);
+            } else {
+            	new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
+                
+            }
+        } catch (SQLException e) {
+        	System.out.println(e.getMessage());
+        }
+    }
+	/*
 	@Override
 	public void start(Stage primaryStage) {
 	    try {
@@ -39,12 +40,12 @@ public class StartCSE360 extends Application {
 	       //new QuestionApp(databaseHelper).show(primaryStage);
 	        //new QuestionsApp().start(primaryStage);
 	        //new AnswerApp().start(primaryStage);
-	        new AnswersApp().start(primaryStage);
+	        //new AnswersApp().start(primaryStage);
 
 	    } catch (SQLException e) {
 	        System.out.println(e.getMessage());
 	    }
 	}
-	
-
+	*/
+	 
 }
