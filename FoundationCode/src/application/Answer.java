@@ -63,6 +63,7 @@ public class Answer {
     }
 
     public int getQuestionId() {
+    	System.out.println(questionId);
         return questionId;
     }
 

@@ -38,11 +38,19 @@ public class QuestionsApp extends Application {
             Button ToQOpt = new Button("Question Options");
             
             HBox buttons = new HBox(5, searchButton, ToQOpt);
+            
+            TextField idGet = new TextField();
+            idGet.setMaxWidth(50);
+            Button toQnA = new Button("toQnA");
+            
+            
+            HBox toAnswers = new HBox(5, idGet, toQnA);
+            
             //buttons.setMAxWidth();
             
 
             // VBox layout for UI components
-            VBox root = new VBox(10, titleLabel, loadButton, searchField, buttons, listView);
+            VBox root = new VBox(10, titleLabel, loadButton, searchField, buttons, toAnswers, listView);
             root.setPadding(new Insets(15));
 
             // Button action to load all questions
@@ -72,6 +80,8 @@ public class QuestionsApp extends Application {
                     }
                 }
             });
+            
+            toQnA.setOnAction(e-> new AnswersApp().start(primaryStage));
             
             // Button to go to Question Options like creating/updating
             ToQOpt.setOnAction(e -> new QuestionApp(dbHelper).show(primaryStage));
