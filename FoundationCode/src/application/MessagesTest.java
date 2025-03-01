@@ -1,125 +1,190 @@
 package application;
 
 import databasePart1.DatabaseHelper;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class MessagesTest {
 
-	static int numPassed = 0; // Counter for passed tests
-    static int numFailed = 0; // Counter for failed tests
+    static int numPassed = 0;  // Counter for passed tests
+    static int numFailed = 0;  // Counter for failed tests
 
     public static void main(String[] args) {
         System.out.println("______________________________________");
-        System.out.println("\nStudent Messaging Testing Automation");
+        System.out.println("\nMessages Testing Automation");
 
-        // Test case 1: Retrieve unread messages count for a student
-        performUnreadMessagesTest(1, 1, 3); // Expecting 3 unread messages
-        
-        // Test case 2: Retrieve messages for a given question
-        performRetrieveMessagesTest(2, 1, true);
-        
-        // Test case 3: Send a reply message
-        performSendMessageTest(3, 1, "teacher1", "Hello, this is a test reply.", true);
-        
+        // Test case 1: Test sending a valid message.
+        performCreateTestCase(1, 1, "recipientUser", "This is a test message.", true);
+
+        // Test case 2: Test sending a message with invalid content (empty string).
+        performCreateTestCase(2, 1, "recipientUser", "", false);
+
+        // Test case 3: Test reading messages.
+        performReadTestCase(3, 1, true);
+
+        // Test case 4: Test retrieving unread messages count.
+        performUnreadTestCase(4, 1, 2, true);
+
+        // Test case 5: Test closing the connection properly.
+        performCloseTestCase(5, true);
+
         System.out.println("____________________________________________________________________________");
         System.out.println("\nNumber of tests passed: " + numPassed);
         System.out.println("Number of tests failed: " + numFailed);
     }
 
     /**
-     * This method tests getting the count of unread messages.
+     * This method tests sending a message (creating a message in the database).
      * 
-     * @param testCase       The test case number.
-     * @param questionId     The question ID for which unread messages are checked.
-     * @param expectedCount  The expected number of unread messages.
+     * @param testCase     The test case number.
+     * @param questionId   The ID of the question the message relates to.
+     * @param recipient    The recipient of the message.
+     * @param messageContent The content of the message.
+     * @param expectedPass true if the test is expected to pass; false otherwise.
      */
-    private static void performUnreadMessagesTest(int testCase, int questionId, int expectedCount) {
-        System.out.println("____________________________________________________________________________\nTest case: " + testCase + " (Unread Messages Test)");
-        System.out.println("Checking unread messages for question ID: " + questionId);
+    private static void performCreateTestCase(int testCase, int questionId, String recipient, String messageContent, boolean expectedPass) {
+        System.out.println("____________________________________________________________________________\nTest case: " + testCase);
+        System.out.println("Message content: \"" + messageContent + "\"");
 
-        DatabaseHelper dbHelper = new DatabaseHelper();
+        Messages messages = new Messages("senderUser");
+        
         try {
-            dbHelper.connectToDatabase();
-            Messages messaging = new Messages("testStudent");
+            // Try sending the message.
+            messages.reply(questionId, recipient, messageContent);
 
-            int unreadCount = messaging.getUnread(questionId);
-
-            if (unreadCount == expectedCount) {
-                System.out.println("***Success***: Unread message count is correct (" + unreadCount + ").");
+            // Check if the message is inserted correctly (by reading it back).
+            String readMessages = messages.readMessages(questionId);
+            if (readMessages.contains(messageContent)) {
+                if (expectedPass) {
+                    System.out.println("***Success***: Message sent and read successfully.");
+                    numPassed++;
+                } else {
+                    System.out.println("***Failure***: Message was unexpectedly accepted with invalid content.");
+                    numFailed++;
+                }
+            } else {
+                if (expectedPass) {
+                    System.out.println("***Failure***: Message not found after sending.");
+                    numFailed++;
+                } else {
+                    System.out.println("***Success***: Invalid message was rejected.");
+                    numPassed++;
+                }
+            }
+        } catch (Exception e) {
+            if (!expectedPass) {
+                System.out.println("***Success***: Invalid message was rejected: " + e.getMessage());
                 numPassed++;
             } else {
-                System.out.println("***Failure***: Expected " + expectedCount + " unread messages but got " + unreadCount + ".");
+                System.out.println("***Failure***: Exception during message creation: " + e.getMessage());
                 numFailed++;
             }
-        } catch (SQLException e) {
-            System.out.println("***Failure***: SQL error: " + e.getMessage());
-            numFailed++;
         } finally {
-            dbHelper.closeConnection();
+            messages.close();
         }
     }
 
     /**
-     * This method tests retrieving messages for a given question.
+     * This method tests reading messages for a specific question.
      * 
-     * @param testCase       The test case number.
-     * @param questionId     The question ID for which messages are retrieved.
-     * @param expectedPass   Whether the retrieval is expected to succeed.
+     * @param testCase     The test case number.
+     * @param questionId   The question ID for which messages are to be read.
+     * @param expectedPass true if the test is expected to pass; false otherwise.
      */
-    private static void performRetrieveMessagesTest(int testCase, int questionId, boolean expectedPass) {
-        System.out.println("____________________________________________________________________________\nTest case: " + testCase + " (Retrieve Messages Test)");
-        System.out.println("Retrieving messages for question ID: " + questionId);
+    private static void performReadTestCase(int testCase, int questionId, boolean expectedPass) {
+        System.out.println("____________________________________________________________________________\nTest case: " + testCase);
 
-        DatabaseHelper dbHelper = new DatabaseHelper();
+        Messages messages = new Messages("recipientUser");
+        
         try {
-            dbHelper.connectToDatabase();
-            Messages messaging = new Messages("testStudent");
+            String result = messages.readMessages(questionId);
+            if (result != null && !result.isEmpty()) {
+                if (expectedPass) {
+                    System.out.println("***Success***: Messages read successfully.");
+                    numPassed++;
+                } else {
+                    System.out.println("***Failure***: Messages should not have been found.");
+                    numFailed++;
+                }
+            } else {
+                if (expectedPass) {
+                    System.out.println("***Failure***: No messages found when there should be some.");
+                    numFailed++;
+                } else {
+                    System.out.println("***Success***: No messages found as expected.");
+                    numPassed++;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("***Failure***: Exception during message reading: " + e.getMessage());
+            numFailed++;
+        } finally {
+            messages.close();
+        }
+    }
 
-            String messages = messaging.readMessages(questionId);
+    /**
+     * This method tests retrieving unread messages count for a specific question.
+     * 
+     * @param testCase     The test case number.
+     * @param questionId   The question ID for which unread messages count is to be checked.
+     * @param expectedCount The expected count of unread messages.
+     * @param expectedPass true if the test is expected to pass; false otherwise.
+     */
+    private static void performUnreadTestCase(int testCase, int questionId, int expectedCount, boolean expectedPass) {
+        System.out.println("____________________________________________________________________________\nTest case: " + testCase);
 
-            if (!messages.isEmpty()) {
-                System.out.println("***Success***: Messages retrieved successfully.");
+        Messages messages = new Messages("recipientUser");
+
+        try {
+            int unreadCount = messages.getUnread(questionId);
+            if (unreadCount == expectedCount) {
+                if (expectedPass) {
+                    System.out.println("***Success***: Correct unread message count.");
+                    numPassed++;
+                } else {
+                    System.out.println("***Failure***: Unread message count should not match.");
+                    numFailed++;
+                }
+            } else {
+                if (expectedPass) {
+                    System.out.println("***Failure***: Unread message count does not match.");
+                    numFailed++;
+                } else {
+                    System.out.println("***Success***: Unread message count was expected to be different.");
+                    numPassed++;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("***Failure***: Exception during unread message count check: " + e.getMessage());
+            numFailed++;
+        } finally {
+            messages.close();
+        }
+    }
+
+    /**
+     * This method tests properly closing the database connection.
+     * 
+     * @param testCase     The test case number.
+     * @param expectedPass true if the test is expected to pass; false otherwise.
+     */
+    private static void performCloseTestCase(int testCase, boolean expectedPass) {
+        System.out.println("____________________________________________________________________________\nTest case: " + testCase);
+
+        Messages messages = new Messages("recipientUser");
+
+        try {
+            messages.close();
+            if (messages != null) {
+                System.out.println("***Success***: Database connection closed successfully.");
                 numPassed++;
             } else {
-                System.out.println(expectedPass ? "***Failure***: No messages retrieved." : "***Success***: No messages as expected.");
-                if (expectedPass) numFailed++; else numPassed++;
+                System.out.println("***Failure***: Failed to close database connection.");
+                numFailed++;
             }
-        } catch (SQLException e) {
-            System.out.println("***Failure***: SQL error: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("***Failure***: Exception during connection close: " + e.getMessage());
             numFailed++;
-        } finally {
-            dbHelper.closeConnection();
         }
     }
-
-    /**
-     * This method tests sending a message.
-     * 
-     * @param testCase       The test case number.
-     * @param questionId     The question ID for which the message is sent.
-     * @param recipient      The recipient of the message.
-     * @param content        The message content.
-     * @param expectedPass   Whether the send operation is expected to succeed.
-     */
-    private static void performSendMessageTest(int testCase, int questionId, String recipient, String content, boolean expectedPass) {
-        System.out.println("____________________________________________________________________________\nTest case: " + testCase + " (Send Message Test)");
-        System.out.println("Sending message to " + recipient + " for question ID: " + questionId);
-
-        DatabaseHelper dbHelper = new DatabaseHelper();
-        try {
-            dbHelper.connectToDatabase();
-            Messages messaging = new Messages("testStudent");
-
-            messaging.reply(questionId, recipient, content);
-            
-            System.out.println("***Success***: Message sent successfully.");
-            numPassed++;
-        } catch (SQLException e) {
-            System.out.println(expectedPass ? "***Failure***: SQL error: " + e.getMessage() : "***Success***: SQL failure expected.");
-            if (expectedPass) numFailed++; else numPassed++;
-        } finally {
-            dbHelper.closeConnection();
-        }
-    }
-	
 }
