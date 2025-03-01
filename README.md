@@ -4,7 +4,7 @@
       - [link](https://drive.google.com/drive/folders/16Ed-Ucp-lUuiE-Ay-RpZEt_pTbBOfjn_?usp=sharing)
   
   - Automated Testing
-      - link
+      - [link](https://youtu.be/mxLXSP8Hlz0)
  
   - Manual Testing
       - link
