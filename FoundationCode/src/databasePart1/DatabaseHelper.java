@@ -78,7 +78,9 @@ public class DatabaseHelper {
 		String answersTable = "CREATE TABLE IF NOT EXISTS Answers (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "questionId INT, " +
-                "content VARCHAR(255) NOT NULL)";
+                "content VARCHAR(255) NOT NULL, " +
+                "answered BOOLEAN DEFAULT FALSE" +
+                ")";
         statement.execute(answersTable);
 
         //Create question table

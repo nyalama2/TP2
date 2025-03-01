@@ -29,7 +29,7 @@ public class Answers {
      * @throws SQLException if an error occurs during database access.
      */
     public void loadAllAnswers(DatabaseHelper dbHelper) throws SQLException {
-        String sql = "SELECT id, questionId, content FROM Answers";
+        String sql = "SELECT id, questionId, content, answered FROM Answers";
         try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             // Clear the current list before loading new data
@@ -38,8 +38,9 @@ public class Answers {
                 int id = rs.getInt("id");
                 int questionId = rs.getInt("questionId");
                 String content = rs.getString("content");
+                boolean answered = rs.getBoolean("answered");
                 // Create a new Answer object using the data from the database
-                Answer answer = new Answer(id, questionId, content);
+                Answer answer = new Answer(id, questionId, content, answered);
                 answerList.add(answer);
             }
         }
