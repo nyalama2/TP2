@@ -32,6 +32,7 @@ public class QuestionApp {
         Button updateButton = new Button("Update Question");
         Button deleteButton = new Button("Delete Question");
         Button backButton = new Button("Back");
+        Button toMessages = new Button("Messages");
         TextArea outputArea = new TextArea();
         
         TextField idGet = new TextField();
@@ -103,7 +104,9 @@ public class QuestionApp {
         
         backButton.setOnAction(e -> new QuestionsApp().start(stage));
         
-        root.getChildren().addAll(titleLabel, questionField, TopButtons, BotButtons, backButton, outputArea);
+        toMessages.setOnAction(e -> new MessagesApp(dbHelper).show(stage));
+        
+        root.getChildren().addAll(titleLabel, questionField, TopButtons, BotButtons, toMessages, backButton, outputArea);
         Scene scene = new Scene(root, 400, 500);
         stage.setScene(scene);
         stage.setTitle("Question CRUD Demo");

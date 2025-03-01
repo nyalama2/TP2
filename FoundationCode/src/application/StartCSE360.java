@@ -16,6 +16,7 @@ public class StartCSE360 extends Application {
 		 launch(args);
 	}
 	
+	/*
 	@Override
     public void start(Stage primaryStage) {
         try {
@@ -31,22 +32,24 @@ public class StartCSE360 extends Application {
         	System.out.println(e.getMessage());
         }
     }
-	/*
+    */
+	
 	@Override
 	public void start(Stage primaryStage) {
 	    try {
 	        databaseHelper.connectToDatabase();
 	        // Directly show QuestionApp for testing:
-	       //new QuestionApp(databaseHelper).show(primaryStage);
-	       // new QuestionsApp().start(primaryStage);
-	        //new AnswerApp().start(primaryStage);
-	        //new AnswersApp().start(primaryStage);
-	        //new QuestionApp(databaseHelper).show(primaryStage);
-
+	       new QuestionApp(databaseHelper).show(primaryStage);
+	        new QuestionsApp().start(primaryStage);
+	       new AnswerApp().start(primaryStage);
+	        new AnswersApp().start(primaryStage);
+			new MessagesApp(databaseHelper).show(primaryStage);
+			
+			
 	    } catch (SQLException e) {
 	        System.out.println(e.getMessage());
 	    }
 	}
-	*/
+	
 	 
 }

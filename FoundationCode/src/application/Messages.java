@@ -49,30 +49,31 @@ public class Messages {
 	
 	// gets the messages and marks them as read
 	public String readMessages(int questionId) {
-		
-		StringBuilder messages = new StringBuilder();
-		String query = "SELECT sender, content FROM messages WHERE question_id = ? AND recipient = ? ORDER BY id ASC";
-		
-		try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(query)) {
-			
-			pstmt.setInt(1, questionId);
-			pstmt.setString(2, studentUser);
-			ResultSet rs = pstmt.executeQuery();
-			
-			while (rs.next()) {
-				
-				messages.append("From: ").append(rs.getString("sender")).append("\n");
-				messages.append("Message: ").append(rs.getString("content")).append("\n");
-			}
-			
-			markMessagesRead(questionId);
-		} catch (SQLException e) {
-			
-			e.printStackTrace();
-		}
-		
-		return messages.toString();
-    }		
+	    
+	    StringBuilder messages = new StringBuilder();
+	    
+	    String query = "SELECT sender, content FROM messages WHERE question_id = ? AND recipient = ? ORDER BY id ASC"; 
+	    
+	    try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(query)) {
+	        
+	        pstmt.setInt(1, questionId);
+	        pstmt.setString(2, studentUser);
+	        ResultSet rs = pstmt.executeQuery();
+	        
+	        while (rs.next()) {
+	            
+	            messages.append("From: ").append(rs.getString("sender")).append("\n");
+	            messages.append("Message: ").append(rs.getString("content")).append("\n");
+	        }
+	        
+	        markMessagesRead(questionId); // Mark messages as read
+	    } catch (SQLException e) {
+	        
+	        e.printStackTrace();
+	    }
+	    
+	    return messages.toString();
+	}
 	
 	// updates the messages in the database
 	private void markMessagesRead(int questionId) {

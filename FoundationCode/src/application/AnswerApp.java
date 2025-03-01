@@ -41,6 +41,7 @@ public class AnswerApp extends Application {
         Button updateButton = new Button("Update Answer");
         Button deleteButton = new Button("Delete Answer");
         Button backButton = new Button("Back");
+        Button toMessages = new Button("Messages");
         TextArea outputArea = new TextArea();
         outputArea.setEditable(false);
         
@@ -112,7 +113,11 @@ public class AnswerApp extends Application {
             }
         });
         
+        // Button to messages
+        toMessages.setOnAction(e -> new MessagesApp(dbHelper).show(primaryStage));
+        
         backButton.setOnAction(e -> new AnswersApp().start(primaryStage));
+        
         // Layout
         VBox root = new VBox(10);
         root.setPadding(new Insets(15));
@@ -120,9 +125,11 @@ public class AnswerApp extends Application {
             titleLabel,
             new Label("Question ID:"), questionIdField,
             new Label("Answer Content:"), contentField,
-            createButton, readButton, updateButton, deleteButton, backButton,
-            outputArea
+            createButton, readButton, updateButton, deleteButton, toMessages, 
+            backButton, outputArea
         );
+        
+        
         
         Scene scene = new Scene(root, 500, 500);
         primaryStage.setTitle("Answer CRUD Demo");

@@ -48,9 +48,13 @@ public class QuestionsApp extends Application {
             
             //buttons.setMAxWidth();
             
-
+            
+            // button to go back to messages
+            Button toMessages = new Button("Messages");
+            
+            
             // VBox layout for UI components
-            VBox root = new VBox(10, titleLabel, loadButton, searchField, buttons, toAnswers, listView);
+            VBox root = new VBox(10, titleLabel, loadButton, searchField, buttons, toMessages, toAnswers, listView);
             root.setPadding(new Insets(15));
 
             // Button action to load all questions
@@ -90,10 +94,14 @@ public class QuestionsApp extends Application {
             primaryStage.setScene(scene);
             primaryStage.setTitle("Questions Collection Demo");
             primaryStage.show();
-
+            
+            // Action for message button
+            toMessages.setOnAction(e -> new MessagesApp(dbHelper).show(primaryStage));
+            
         } catch (SQLException ex) {
             showAlert("Database Error", "Failed to connect: " + ex.getMessage());
         }
+        
     }
 
     /**

@@ -57,8 +57,9 @@ public class AnswersApp extends Application {
             Button loadButton = new Button("Load Answers");
             Button backButton = new Button("BackToQuestion");
             Button answerOptions = new Button("To Answer Options");
+            Button toMessages = new Button("Messages");
             
-            HBox buttons = new HBox(5, loadButton, answerOptions, backButton);
+            HBox buttons = new HBox(5, loadButton, answerOptions, backButton, toMessages);
             // Layout
             VBox root = new VBox(10, questionInfo, buttons, listView);
             root.setPadding(new Insets(15));
@@ -76,6 +77,8 @@ public class AnswersApp extends Application {
                     }
                 }
             });
+            
+            toMessages.setOnAction(e -> new MessagesApp(dbHelper).show(primaryStage));
             
             backButton.setOnAction(e -> new QuestionsApp().start(primaryStage));
             
