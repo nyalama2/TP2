@@ -1,5 +1,9 @@
+<<<<<<< Updated upstream
 /.DS_Store
 /application.zip
+=======
+/databasePart1/
+>>>>>>> Stashed changes
 /application/
 /databasePart1/
 /module-info.class

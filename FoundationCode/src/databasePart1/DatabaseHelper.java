@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import application.Question;
 import application.User;
 
 /**
@@ -38,7 +39,7 @@ public class DatabaseHelper {
 			connection = DriverManager.getConnection(DB_URL, USER, PASS);
 			statement = connection.createStatement();
 			// You can use this command to clear the database and restart from fresh.
-			// statement.execute("DROP ALL OBJECTS");
+			//statement.execute("DROP ALL OBJECTS");
 
 			createTables(); // Create the necessary tables if they don't exist
 		} catch (ClassNotFoundException e) {
@@ -74,18 +75,19 @@ public class DatabaseHelper {
 				"ALTER TABLE InvitationCodes ADD COLUMN IF NOT EXISTS startTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
 		statement.execute("ALTER TABLE InvitationCodes ADD COLUMN IF NOT EXISTS expires TIMESTAMP");
 		
-		//create answer table
-		String answersTable = "CREATE TABLE IF NOT EXISTS Answers (" +
-                "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                "questionId INT, " +
-                "content VARCHAR(255) NOT NULL)";
-        statement.execute(answersTable);
-
-        //Create question table
-		String questionsTable = "CREATE TABLE IF NOT EXISTS Questions (" + "id INT AUTO_INCREMENT PRIMARY KEY, "
-				+ "content VARCHAR(255) NOT NULL)";
+		// Create question table
+		String questionsTable = "CREATE TABLE IF NOT EXISTS Questions (" +
+				"id INT AUTO_INCREMENT PRIMARY KEY, " +
+				"content VARCHAR(255) NOT NULL)";
 		statement.execute(questionsTable);
 
+		// Create answer table
+		String answersTable = "CREATE TABLE IF NOT EXISTS Answers (" +
+				"id INT AUTO_INCREMENT PRIMARY KEY, " +
+				"questionId INT, " +
+				"content VARCHAR(255) NOT NULL, " +
+				"FOREIGN KEY (questionId) REFERENCES Questions(id) ON DELETE CASCADE)";
+		statement.execute(answersTable);
 	}
 
 	// Check if the database is empty
@@ -378,6 +380,43 @@ public class DatabaseHelper {
 
 	public Connection getConnection() {
 		return connection;
+	}
+
+	// Add a new answer to a question
+	public void addAnswer(int questionId, String content) throws SQLException {
+		String query = "INSERT INTO Answers (questionId, content) VALUES (?, ?)";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, questionId);
+			pstmt.setString(2, content);
+			pstmt.executeUpdate();
+		}
+	}
+
+	// Get all answers for a specific question
+	public List<String> getAnswers(int questionId) throws SQLException {
+		List<String> answers = new ArrayList<>();
+		String query = "SELECT content FROM Answers WHERE questionId = ?";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			pstmt.setInt(1, questionId);
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				answers.add(rs.getString("content"));
+			}
+		}
+		return answers;
+	}
+
+	// Get all questions
+	public List<Question> getAllQuestions() throws SQLException {
+		List<Question> questions = new ArrayList<>();
+		String query = "SELECT * FROM Questions";
+		try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				questions.add(new Question(rs.getInt("id"), rs.getString("content")));
+			}
+		}
+		return questions;
 	}
 
 }
