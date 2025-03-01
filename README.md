@@ -1,3 +1,6 @@
 # Phase 2
-# Screen Cast
-  - 
+# Screen Casts
+  - Automated Testing
+      - link
+  - Manual Testing
+      - link
