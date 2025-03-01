@@ -61,6 +61,17 @@ public class Answers {
         }
         return result;
     }
+    
+    public List<Answer> searchAnswersId(int id) {
+    	System.out.println("sdfsfsdfsdfdsff");
+    	List<Answer> result = new ArrayList<>();
+    	for(Answer a : answerList) {
+    		if(a.getQuestionId() == id) {
+    			result.add(a);
+    		}
+    	}
+    	return result;
+    }
 
     /**
      * Adds an Answer to the local list.

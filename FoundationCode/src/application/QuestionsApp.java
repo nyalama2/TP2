@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
@@ -33,9 +34,23 @@ public class QuestionsApp extends Application {
             TextField searchField = new TextField();
             searchField.setPromptText("Enter keyword to search");
             Button searchButton = new Button("Search");
+            
+            Button ToQOpt = new Button("Question Options");
+            
+            HBox buttons = new HBox(5, searchButton, ToQOpt);
+            
+            TextField idGet = new TextField();
+            idGet.setMaxWidth(50);
+            Button toQnA = new Button("toQnA");
+            
+            
+            HBox toAnswers = new HBox(5, idGet, toQnA);
+            
+            //buttons.setMAxWidth();
+            
 
             // VBox layout for UI components
-            VBox root = new VBox(10, titleLabel, loadButton, searchField, searchButton, listView);
+            VBox root = new VBox(10, titleLabel, loadButton, searchField, buttons, toAnswers, listView);
             root.setPadding(new Insets(15));
 
             // Button action to load all questions
@@ -65,6 +80,11 @@ public class QuestionsApp extends Application {
                     }
                 }
             });
+            
+            toQnA.setOnAction(e-> new AnswersApp().start(primaryStage));
+            
+            // Button to go to Question Options like creating/updating
+            ToQOpt.setOnAction(e -> new QuestionApp(dbHelper).show(primaryStage));
 
             Scene scene = new Scene(root, 500, 400);
             primaryStage.setScene(scene);
