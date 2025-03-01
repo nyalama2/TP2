@@ -85,7 +85,12 @@ public class DatabaseHelper {
 		String questionsTable = "CREATE TABLE IF NOT EXISTS Questions (" + "id INT AUTO_INCREMENT PRIMARY KEY, "
 				+ "content VARCHAR(255) NOT NULL)";
 		statement.execute(questionsTable);
-
+		
+		// Create a Messages Table
+		String messagesTable = "CREATE TABLE IF NOT EXISTS Messages (" + "id INT AUTO_INCREMENT PRIMARY KEY, "
+				+ "question_id INT NOT NULL, sender VARCHAR(255) NOT NULL, recipient VARCHAR(255) NOT NULL, "
+				+ "content TEXT NOT NULL, is_read BOOLEAN DEFAULT FALSE)";
+		statement.execute(messagesTable);
 	}
 
 	// Check if the database is empty
