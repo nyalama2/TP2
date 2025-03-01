@@ -5,10 +5,10 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class QuestionApp {
 
@@ -23,7 +23,16 @@ public class QuestionApp {
         VBox root = new VBox(10);
         root.setPadding(new Insets(15));
         
-        Label titleLabel = new Label("Question CRUD Demo");
+        // Create tabs for different functionalities
+        TabPane tabPane = new TabPane();
+        Tab managementTab = new Tab("Manage Questions");
+        Tab viewAnswerTab = new Tab("View & Answer");
+        managementTab.setClosable(false);
+        viewAnswerTab.setClosable(false);
+
+        // Original management content
+        VBox managementContent = new VBox(10);
+        Label titleLabel = new Label("Question Management");
         TextField questionField = new TextField();
         questionField.setPromptText("Enter question content");
         
@@ -31,15 +40,7 @@ public class QuestionApp {
         Button readButton = new Button("Read Question");
         Button updateButton = new Button("Update Question");
         Button deleteButton = new Button("Delete Question");
-        Button backButton = new Button("Back");
-        Button toMessages = new Button("Messages");
         TextArea outputArea = new TextArea();
-        
-        TextField idGet = new TextField();
-        idGet.setMaxWidth(50);
-        
-        HBox TopButtons = new HBox(5, createButton, readButton);
-        HBox BotButtons = new HBox(5, idGet, updateButton, deleteButton);
         
         createButton.setOnAction(e -> {
             try {
@@ -53,10 +54,9 @@ public class QuestionApp {
         });
         
         readButton.setOnAction(e -> {
-            if (!idGet.getText().isEmpty()) {
+            if (currentQuestion != null) {
                 try {
-                	int id = Integer.parseInt(idGet.getText());
-                    Question q = Question.read(dbHelper, id);
+                    Question q = Question.read(dbHelper, currentQuestion.getId());
                     if (q != null) {
                         outputArea.appendText("Read: " + q + "\n");
                     } else {
@@ -66,50 +66,45 @@ public class QuestionApp {
                     outputArea.appendText("Error reading question: " + ex.getMessage() + "\n");
                 }
             } else {
-                outputArea.appendText("Wrong Question ID to read.\n");
+                outputArea.appendText("No question created yet.\n");
             }
         });
         
         updateButton.setOnAction(e -> {
-            if (!idGet.getText().isEmpty()) {
+            if (currentQuestion != null) {
                 try {
-                	int id = Integer.parseInt(idGet.getText());
                     String newContent = questionField.getText();
-                    Question q = Question.read(dbHelper, id);
-                    q.update(dbHelper, newContent);
-                    outputArea.appendText("Updated: " + q + "\n");
+                    currentQuestion.update(dbHelper, newContent);
+                    outputArea.appendText("Updated: " + currentQuestion + "\n");
                 } catch (Exception ex) {
                     outputArea.appendText("Error updating question: " + ex.getMessage() + "\n");
                 }
             } else {
-                outputArea.appendText("Incorrect Question ID.\n");
+                outputArea.appendText("No question created to update.\n");
             }
         });
         
         deleteButton.setOnAction(e -> {
-            if (!idGet.getText().isEmpty()) {
+            if (currentQuestion != null) {
                 try {
-                	int id = Integer.parseInt(idGet.getText());
-                	Question q = Question.read(dbHelper, id);
-                	q.delete(dbHelper);
-                    outputArea.appendText("Deleted question with id: " + id + "\n");
+                    currentQuestion.delete(dbHelper);
+                    outputArea.appendText("Deleted question with id: " + currentQuestion.getId() + "\n");
                     currentQuestion = null;
                 } catch (SQLException ex) {
                     outputArea.appendText("Error deleting question: " + ex.getMessage() + "\n");
                 }
             } else {
-                outputArea.appendText("Incorrect Question ID to Delete.\n");
+                outputArea.appendText("No question created to delete.\n");
             }
         });
         
-        backButton.setOnAction(e -> new QuestionsApp().start(stage));
-        
-        toMessages.setOnAction(e -> new MessagesApp(dbHelper).show(stage));
-        
-        root.getChildren().addAll(titleLabel, questionField, TopButtons, BotButtons, toMessages, backButton, outputArea);
+        root.getChildren().addAll(titleLabel, questionField, createButton, readButton, updateButton, deleteButton, outputArea);
         Scene scene = new Scene(root, 400, 500);
         stage.setScene(scene);
-        stage.setTitle("Question CRUD Demo");
+        stage.setTitle("Question Management System");
         stage.show();
+        
+        // Initial load of questions
+        //refreshButton.fire();
     }
 }
