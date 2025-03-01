@@ -7,4 +7,4 @@
       - [link](https://youtu.be/mxLXSP8Hlz0)
  
   - Manual Testing
-      - link
+      - [link](https://youtu.be/wT8JqAiAw2o)
