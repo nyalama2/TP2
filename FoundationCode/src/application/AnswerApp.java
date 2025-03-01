@@ -40,7 +40,8 @@ public class AnswerApp extends Application {
         Button readButton = new Button("Read Answer");
         Button updateButton = new Button("Update Answer");
         Button deleteButton = new Button("Delete Answer");
-        
+        Button backButton = new Button("Back");
+        Button toMessages = new Button("Messages");
         TextArea outputArea = new TextArea();
         outputArea.setEditable(false);
         
@@ -82,11 +83,12 @@ public class AnswerApp extends Application {
         
         // Update Answer
         updateButton.setOnAction(e -> {
-            if (currentAnswer != null) {
+            if (!questionIdField.getText().isEmpty()) {
                 try {
                     String newContent = contentField.getText();
-                    currentAnswer.update(dbHelper, newContent);
-                    outputArea.appendText("Updated: " + currentAnswer + "\n");
+                    Answer old = Answer.read(dbHelper, Integer.parseInt(questionIdField.getText()));
+                    old.update(dbHelper, newContent);
+                    outputArea.appendText("Updated: " + old + "\n");
                 } catch (Exception ex) {
                     outputArea.appendText("Error updating answer: " + ex.getMessage() + "\n");
                 }
@@ -97,11 +99,12 @@ public class AnswerApp extends Application {
         
         // Delete Answer
         deleteButton.setOnAction(e -> {
-            if (currentAnswer != null) {
+            if (!questionIdField.getText().isEmpty()) {
                 try {
-                    currentAnswer.delete(dbHelper);
-                    outputArea.appendText("Deleted answer with id: " + currentAnswer.getId() + "\n");
-                    currentAnswer = null;
+                	Answer a = Answer.read(dbHelper, Integer.parseInt(questionIdField.getText()));
+                	a.delete(dbHelper);
+                    outputArea.appendText("Deleted answer with id: " + a.getId() + "\n");
+                    a = null;
                 } catch (SQLException ex) {
                     outputArea.appendText("Error deleting answer: " + ex.getMessage() + "\n");
                 }
@@ -110,6 +113,11 @@ public class AnswerApp extends Application {
             }
         });
         
+        // Button to messages
+        toMessages.setOnAction(e -> new MessagesApp(dbHelper).show(primaryStage));
+        
+        backButton.setOnAction(e -> new AnswersApp().start(primaryStage));
+        
         // Layout
         VBox root = new VBox(10);
         root.setPadding(new Insets(15));
@@ -117,9 +125,11 @@ public class AnswerApp extends Application {
             titleLabel,
             new Label("Question ID:"), questionIdField,
             new Label("Answer Content:"), contentField,
-            createButton, readButton, updateButton, deleteButton,
-            outputArea
+            createButton, readButton, updateButton, deleteButton, toMessages, 
+            backButton, outputArea
         );
+        
+        
         
         Scene scene = new Scene(root, 500, 500);
         primaryStage.setTitle("Answer CRUD Demo");

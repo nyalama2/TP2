@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
@@ -30,7 +31,15 @@ public class QuestionApp {
         Button readButton = new Button("Read Question");
         Button updateButton = new Button("Update Question");
         Button deleteButton = new Button("Delete Question");
+        Button backButton = new Button("Back");
+        Button toMessages = new Button("Messages");
         TextArea outputArea = new TextArea();
+        
+        TextField idGet = new TextField();
+        idGet.setMaxWidth(50);
+        
+        HBox TopButtons = new HBox(5, createButton, readButton);
+        HBox BotButtons = new HBox(5, idGet, updateButton, deleteButton);
         
         createButton.setOnAction(e -> {
             try {
@@ -44,9 +53,10 @@ public class QuestionApp {
         });
         
         readButton.setOnAction(e -> {
-            if (currentQuestion != null) {
+            if (!idGet.getText().isEmpty()) {
                 try {
-                    Question q = Question.read(dbHelper, currentQuestion.getId());
+                	int id = Integer.parseInt(idGet.getText());
+                    Question q = Question.read(dbHelper, id);
                     if (q != null) {
                         outputArea.appendText("Read: " + q + "\n");
                     } else {
@@ -56,39 +66,47 @@ public class QuestionApp {
                     outputArea.appendText("Error reading question: " + ex.getMessage() + "\n");
                 }
             } else {
-                outputArea.appendText("No question created yet.\n");
+                outputArea.appendText("Wrong Question ID to read.\n");
             }
         });
         
         updateButton.setOnAction(e -> {
-            if (currentQuestion != null) {
+            if (!idGet.getText().isEmpty()) {
                 try {
+                	int id = Integer.parseInt(idGet.getText());
                     String newContent = questionField.getText();
-                    currentQuestion.update(dbHelper, newContent);
-                    outputArea.appendText("Updated: " + currentQuestion + "\n");
+                    Question q = Question.read(dbHelper, id);
+                    q.update(dbHelper, newContent);
+                    outputArea.appendText("Updated: " + q + "\n");
                 } catch (Exception ex) {
                     outputArea.appendText("Error updating question: " + ex.getMessage() + "\n");
                 }
             } else {
-                outputArea.appendText("No question created to update.\n");
+                outputArea.appendText("Incorrect Question ID.\n");
             }
         });
         
         deleteButton.setOnAction(e -> {
-            if (currentQuestion != null) {
+            if (!idGet.getText().isEmpty()) {
                 try {
-                    currentQuestion.delete(dbHelper);
-                    outputArea.appendText("Deleted question with id: " + currentQuestion.getId() + "\n");
+                	int id = Integer.parseInt(idGet.getText());
+                	Question q = Question.read(dbHelper, id);
+                	q.delete(dbHelper);
+                    outputArea.appendText("Deleted question with id: " + id + "\n");
                     currentQuestion = null;
                 } catch (SQLException ex) {
                     outputArea.appendText("Error deleting question: " + ex.getMessage() + "\n");
                 }
             } else {
-                outputArea.appendText("No question created to delete.\n");
+                outputArea.appendText("Incorrect Question ID to Delete.\n");
             }
         });
         
-        root.getChildren().addAll(titleLabel, questionField, createButton, readButton, updateButton, deleteButton, outputArea);
+        backButton.setOnAction(e -> new QuestionsApp().start(stage));
+        
+        toMessages.setOnAction(e -> new MessagesApp(dbHelper).show(stage));
+        
+        root.getChildren().addAll(titleLabel, questionField, TopButtons, BotButtons, toMessages, backButton, outputArea);
         Scene scene = new Scene(root, 400, 500);
         stage.setScene(scene);
         stage.setTitle("Question CRUD Demo");
