@@ -45,6 +45,23 @@ public class DatabaseHelper {
 			System.err.println("JDBC Driver not found: " + e.getMessage());
 		}
 	}
+	
+//	public void resetDatabase(DatabaseHelper dbHelper) throws SQLException {
+//	    try (Statement stmt = dbHelper.getConnection().createStatement()) {
+//	        // Drop the Answers table if it exists
+//	        stmt.execute("DROP TABLE IF EXISTS Answers");
+//	        
+//	        // Recreate the Answers table with the updated schema
+//	        String createAnswersTable = "CREATE TABLE IF NOT EXISTS Answers ("
+//	                + "id INT AUTO_INCREMENT PRIMARY KEY, "
+//	                + "questionId INT, "
+//	                + "content VARCHAR(255) NOT NULL, "
+//	                + "answered BOOLEAN DEFAULT FALSE"
+//	                + ")";
+//	        stmt.execute(createAnswersTable);
+//	    }
+//	}
+
 
 	private void createTables() throws SQLException {
 		String userTable = "CREATE TABLE IF NOT EXISTS cse360users (" + "id INT AUTO_INCREMENT PRIMARY KEY, "
@@ -74,11 +91,14 @@ public class DatabaseHelper {
 				"ALTER TABLE InvitationCodes ADD COLUMN IF NOT EXISTS startTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
 		statement.execute("ALTER TABLE InvitationCodes ADD COLUMN IF NOT EXISTS expires TIMESTAMP");
 		
-		//create answer table
+		//create answer table, gerum added feature that allows for user to choose if the answer actually answered the question or not
+		//statement.execute("DROP TABLE IF EXISTS Answers");
 		String answersTable = "CREATE TABLE IF NOT EXISTS Answers (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "questionId INT, " +
-                "content VARCHAR(255) NOT NULL)";
+                "content VARCHAR(255) NOT NULL, " +
+                "answered BOOLEAN DEFAULT FALSE" +
+                ")";
         statement.execute(answersTable);
 
         //Create question table

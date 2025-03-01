@@ -40,6 +40,7 @@ public class AnswerApp extends Application {
         Button readButton = new Button("Read Answer");
         Button updateButton = new Button("Update Answer");
         Button deleteButton = new Button("Delete Answer");
+        Button answeredButton = new Button("Answered?");
         
         TextArea outputArea = new TextArea();
         outputArea.setEditable(false);
@@ -52,7 +53,7 @@ public class AnswerApp extends Application {
                 // Parse questionId from text field
                 int questionId = Integer.parseInt(questionIdField.getText().trim());
                 String content = contentField.getText();
-                currentAnswer = new Answer(questionId, content);
+                currentAnswer = new Answer(questionId, content, false);
                 currentAnswer.create(dbHelper);
                 outputArea.appendText("Created: " + currentAnswer + "\n");
             } catch (NumberFormatException nfe) {
@@ -110,6 +111,21 @@ public class AnswerApp extends Application {
             }
         });
         
+        answeredButton.setOnAction(e -> {
+            if (currentAnswer != null) {
+                try {
+                    currentAnswer.updateAnswered(dbHelper, true);
+                    outputArea.appendText("Updated answered: " + currentAnswer + "\n");
+                    // Optionally, do not set currentAnswer to null here.
+                } catch (SQLException ex) {
+                    outputArea.appendText("Error updating answer: " + ex.getMessage() + "\n");
+                }
+            } else {
+                outputArea.appendText("No answer created to update.\n");
+            }
+        });
+
+        
         // Layout
         VBox root = new VBox(10);
         root.setPadding(new Insets(15));
@@ -117,7 +133,7 @@ public class AnswerApp extends Application {
             titleLabel,
             new Label("Question ID:"), questionIdField,
             new Label("Answer Content:"), contentField,
-            createButton, readButton, updateButton, deleteButton,
+            createButton, readButton, updateButton, deleteButton, answeredButton,
             outputArea
         );
         

@@ -76,7 +76,7 @@ public class UpdateTestingAutomation {
 		
 		try {
 			//dbHelper.connectToDatabase();
-			currentAnswer = new Answer(1, initialText);
+			currentAnswer = new Answer(1, initialText, false);
 			currentAnswer.create(dbHelper);
 			currentAnswer.update(dbHelper,  updatedText);
 			Answer a = Answer.read(dbHelper, currentAnswer.getId());
