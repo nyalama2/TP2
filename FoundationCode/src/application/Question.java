@@ -1,7 +1,7 @@
 package application;
 
-import databasePart1.DatabaseHelper;
 import java.sql.*;
+import databasePart1.DatabaseHelper;
 
 public class Question {
     private int id;
@@ -51,39 +51,29 @@ public class Question {
 
     // Create a new Question in the database.
     public void create(DatabaseHelper dbHelper) throws SQLException {
-        String sql = "INSERT INTO Questions (content) VALUES (?)";
-        try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, this.content);
-            int affectedRows = pstmt.executeUpdate();
-            if (affectedRows == 0) {
-                throw new SQLException("Creating question failed, no rows affected.");
-            }
-            // Retrieve the generated id
-            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    this.id = generatedKeys.getInt(1);
-                } else {
-                    throw new SQLException("Creating question failed, no ID obtained.");
-                }
+        String query = "INSERT INTO Questions (content) VALUES (?)";
+        try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, content);
+            pstmt.executeUpdate();
+            
+            ResultSet rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                this.id = rs.getInt(1);
             }
         }
     }
 
     // Read a Question from the database by id.
-    public static Question read(DatabaseHelper dbHelper, int questionId) throws SQLException {
-        String sql = "SELECT id, content FROM Questions WHERE id = ?";
-        try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(sql)) {
-            pstmt.setInt(1, questionId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    int id = rs.getInt("id");
-                    String content = rs.getString("content");
-                    return new Question(id, content);
-                } else {
-                    return null; // Question not found
-                }
+    public static Question read(DatabaseHelper dbHelper, int id) throws SQLException {
+        String query = "SELECT * FROM Questions WHERE id = ?";
+        try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(query)) {
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new Question(rs.getInt("id"), rs.getString("content"));
             }
         }
+        return null;
     }
 
     // Update an existing Question in the database.
@@ -91,32 +81,26 @@ public class Question {
         if (!isValidContent(newContent)) {
             throw new IllegalArgumentException("New question content cannot be empty.");
         }
-        String sql = "UPDATE Questions SET content = ? WHERE id = ?";
-        try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(sql)) {
+        String query = "UPDATE Questions SET content = ? WHERE id = ?";
+        try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(query)) {
             pstmt.setString(1, newContent);
             pstmt.setInt(2, this.id);
-            int affectedRows = pstmt.executeUpdate();
-            if (affectedRows == 0) {
-                throw new SQLException("Updating question failed, no rows affected.");
-            }
+            pstmt.executeUpdate();
             this.content = newContent;
         }
     }
 
     // Delete a Question from the database.
     public void delete(DatabaseHelper dbHelper) throws SQLException {
-        String sql = "DELETE FROM Questions WHERE id = ?";
-        try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(sql)) {
+        String query = "DELETE FROM Questions WHERE id = ?";
+        try (PreparedStatement pstmt = dbHelper.getConnection().prepareStatement(query)) {
             pstmt.setInt(1, this.id);
-            int affectedRows = pstmt.executeUpdate();
-            if (affectedRows == 0) {
-                throw new SQLException("Deleting question failed, no rows affected.");
-            }
+            pstmt.executeUpdate();
         }
     }
 
     @Override
     public String toString() {
-        return "Question [id=" + id + ", content=" + content + "]";
+        return "Question #" + id + ": " + content;
     }
 }
